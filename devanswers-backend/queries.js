@@ -5,83 +5,231 @@ import Answer from "./models/Answer.js";
 import dotenv from "dotenv";
 
 async function query1() {
-  // Write code for Query 1 here
+  try {
+    const user = await User.create({
+    name: "Robin",
+    email: "robin@example.com",
+    password: "hashed_password_7",
+    createdAt: new Date("2025-06-25T10:15:00Z"),
+  });
+    console.log("User created:", user);
+  } catch (error) {
+    console.error("Error creating user:", error);
+  } 
 }
 
 async function query2() {
-  // Write code for Query 2 here
+  try{
+    const user = await User.findOne({ email: "alice@example.com" });
+    console.log("User found:", user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+  }
 }
 
 async function query3() {
-  // Write code for Query 3 here
+  try {
+    const question = await Question.findOne({
+      title: "How can I improve the performance of a react app?",
+    });
+    console.log("Question found:", question);
+  } catch (error) {
+    console.error("Error fetching question:", error);
+  }
 }
 
 async function query4() {
-  // Write code for Query 4 here
+  try {
+    const questions = await Question.find({ tags: "javascript" });
+    console.log("Questions found:", questions);
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+  }
 }
 
 async function query5() {
-  // Write code for Query 5 here
+  try {
+    const questions = await Question.find({ createdAt: { $gt: new Date("2023-04-01") } });
+    console.log("Questions found:", questions);
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+  }
 }
 
 async function query6() {
-  // Write code for Query 6 here
+  try {
+    const questions = await Question.find({ tags: { $in: ["javascript", "react"] } });
+    console.log("Questions found:", questions);
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+  }
 }
 
 async function query7() {
-  // Write code for Query 7 here
+  try {
+    const tags = await Question.distinct("tags");
+    console.log("Distinct tags found:", tags);
+  } catch (error) {
+    console.error("Error fetching distinct tags:", error);
+  }
 }
 
 async function query8() {
-  // Write code for Query 8 here
+  try {
+    const questions = await Question.find({ views: { $gte: 50 } });
+    console.log("Questions found:", questions );
+  } catch (error) {
+    console.error("Error fetching questions with at least 50 views:", error);
+  }
 }
 
 async function query9() {
-  // Write code for Query 9 here
+  try {
+    const answers = await Answer.find({ voteCount: 0 });
+    console.log("Answers found:", answers);
+  } catch (error) {
+    console.error("Error fetching answers with vote count of 0:", error);
+  } 
 }
 
 async function query10() {
-  // Write code for Query 10 here
+  try {
+    const answers = await Answer.find({ voteCount: { $gt: 0 } });
+    console.log("Answers found:", answers);
+  } catch (error) {
+    console.error("Error fetching answers with vote count greater than 0:", error);
+  } 
 }
 
 async function query11() {
-  // Write code for Query 11 here
+  try {
+    const users = await User.find({ createdAt: { $gte: new Date("2023-01-01"), $lt: new Date("2023-05-01") } });
+    console.log("Users found:", users);
+  } catch (error) {
+    console.error("Error fetching users created between January 1, 2023 and May 1, 2023:", error);
+  } 
 }
 
 async function query12() {
-  // Write code for Query 12 here
+  try {
+    const question = await Question.find({ title : "How do I set up routing with react router v6?" });
+    const answers = await Answer.find({ questionId: question._id })
+    .populate("author", "name -_id")
+    .select("answerText author -_id");     
+    console.log("Answers found:", answers);
+  } catch (error) {
+    console.error("Error fetching answers for the question 'How do I set up routing with react router v6?':", error);
+  } 
 }
 
 async function query13() {
-  // Write code for Query 13 here
+  try {
+    const users = await Answer.find().distinct("author");
+    const usersWithoutAnswers = await User.find({ _id: { $nin: users } });
+    console.log("Users without answers:", usersWithoutAnswers);
+  } catch (error) {
+    console.error("Error fetching users without answers:", error);
+  }
 }
 
 async function query14() {
-  // Write code for Query 14 here
+  try {
+    const questions = await Question.find().sort({ upvotes: -1 }).limit(2);
+    console.log("Top two most upvoted questions:", questions);
+  } catch (error) {
+    console.error("Error fetching top two most upvoted questions:", error);
+  }
 }
 
 async function query15() {
-  // Write code for Query 15 here
+try {
+  const usersWithAnswerCounts = await User.aggregate([
+    {
+      $lookup: { from: "answers", localField: "_id", foreignField: "author", as: "answers" }
+    },
+    {
+      $project: { _id: 1,  answerCount: { $size: "$answers" }}
+    }
+  ]);
+  console.log("Users with answer counts:", usersWithAnswerCounts);
+} catch (error) {
+  console.error("Error fetching users with answer counts:", error);
+}
 }
 
 async function query16() {
-  // Write code for Query 16 here
+  try {
+    const topAnswerers = await User.aggregate([
+      {
+        $lookup: { from: "answers", localField: "_id", foreignField: "author", as: "answers" }
+      },
+      {
+        $project: { name: 1, answerCount: { $size: "$answers" }}
+      },
+      {
+        $sort: { answerCount: -1 }
+      },
+      {
+        $limit: 2
+      }
+    ]);
+    console.log("Top two users who posted the most answers:", topAnswerers);
+  } catch (error) {
+    console.error("Error fetching top two users who posted the most answers:", error);
+  }
 }
 
 async function query17() {
-  // Write code for Query 17 here
+  try {
+    const updatedQuestion = await Question.findOneAndUpdate(
+      { title: "Why is my async function returning a promise instead of the actual value?" },
+      { tags: ["javascript", "async"] },
+      { new: true }
+    );
+    console.log("Updated question:", updatedQuestion);
+  } catch (error) {
+    console.error("Error updating question tags:", error);
+  } 
 }
 
 async function query18() {
-  // Write code for Query 18 here
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { email: "alice@example.com" },
+      { name: "Alice Smith" },
+      { new: true }
+    ).select("-_id");
+    console.log("Updated user:", updatedUser);
+  } catch (error) {
+    console.error("Error updating user name:", error);
+  } 
 }
 
 async function query19() {
-  // Write code for Query 19 here
+  try {
+    const deletedUser = await User.findOneAndDelete({ email: "jhonny@example.com" } ).select("-_id");
+    if(!deletedUser) {
+      console.log("User with email jhonny@example.com not found");
+    } else {
+      console.log("Deleted user:", deletedUser);
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error);
+  } 
 }
 
 async function query20() {
-  // Write code for Query 20 here
+  try {
+    const user = await User.findOne({ email: "alice@example.com" });
+    if (user) {
+      const deletedAnswers = await Answer.deleteMany({ author: user._id });
+      console.log("Deleted answers:", deletedAnswers);
+    } else {
+      console.log("User not found");
+    }
+  } catch (error) {
+    console.error("Error deleting answers of the user:", error);
+  } 
 }
 
 async function runQueries() {

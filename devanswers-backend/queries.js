@@ -134,7 +134,7 @@ async function query13() {
 
 async function query14() {
   try {
-    const questions = await Question.find().sort({ upvotes: -1 }).limit(2);
+    const questions = await Question.find().sort({ voteCount: -1 }).limit(2);
     console.log("Top two most upvoted questions:", questions);
   } catch (error) {
     console.error("Error fetching top two most upvoted questions:", error);
@@ -148,7 +148,10 @@ try {
       $lookup: { from: "answers", localField: "_id", foreignField: "author", as: "answers" }
     },
     {
-      $project: { _id: 1,  answerCount: { $size: "$answers" }}
+      $project: { _id: 1, answerCount: { $size: "$answers" }}
+    },
+    { 
+      $match: { answerCount: { $gt: 0 } }
     }
   ]);
   console.log("Users with answer counts:", usersWithAnswerCounts);
@@ -198,7 +201,7 @@ async function query18() {
       { email: "alice@example.com" },
       { name: "Alice Smith" },
       { new: true }
-    ).select("-_id");
+    );
     console.log("Updated user:", updatedUser);
   } catch (error) {
     console.error("Error updating user name:", error);
